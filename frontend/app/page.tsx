@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { Spin } from "antd";
 import { useRouter } from "next/navigation";
 import { redirectHome } from "@/lib/examGuards";
 
@@ -12,8 +13,6 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-[#050508] text-sm text-slate-400">
-      Loading…
-    </div>
+    <Spin spinning fullscreen size="large"  />
   );
 }

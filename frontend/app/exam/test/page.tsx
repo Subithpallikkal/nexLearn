@@ -24,6 +24,7 @@ import ExamHeader from "../components/ExamHeader";
 import ExamLoadingShell from "../components/ExamLoadingShell";
 import SubmitConfirmModal from "../components/SubmitConfirmModal";
 import { clsx } from "clsx";
+import { Spin } from "antd";
 import { Clock, Menu, X } from "lucide-react";
 
 const API_ORIGIN =
@@ -83,6 +84,7 @@ export default function ExamTestPage() {
     if (submitInFlight.current || !questions.length) return;
     submitInFlight.current = true;
     setSubmitting(true);
+    let staySubmittingForNavigation = false;
     try {
       const payload = questions.map((q) => ({
         question_id: q.id,
@@ -101,6 +103,7 @@ export default function ExamTestPage() {
             : null
         );
         setShowSubmitModal(false);
+        staySubmittingForNavigation = true;
         router.push("/exam/result");
       } else {
         setShowSubmitModal(false);
@@ -110,8 +113,10 @@ export default function ExamTestPage() {
       setShowSubmitModal(false);
       alert("Submit failed. Try again.");
     } finally {
-      setSubmitting(false);
       submitInFlight.current = false;
+      if (!staySubmittingForNavigation) {
+        setSubmitting(false);
+      }
     }
   }, [answers, dispatch, meta, questions, router]);
 
@@ -312,7 +317,7 @@ export default function ExamTestPage() {
       </div> */}
 
       <div className="mx-auto flex min-h-0 w-full max-w-500 flex-1 flex-col gap-1.5 px-1.5 py-1.5 sm:gap-3 sm:px-5 sm:py-3 lg:flex-row lg:items-stretch lg:gap-6 lg:px-8 lg:py-3">
-        <section className="flex min-h-0 min-w-0 flex-[1.2] flex-col gap-1.5 rounded-xl border border-slate-200/80 bg-white p-1.5 shadow-[0_1px_3px_rgba(15,23,42,0.06)] sm:gap-2.5 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none lg:min-h-0 lg:flex-[.70">
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5 rounded-xl border border-slate-200/80 bg-white p-1.5 shadow-[0_1px_3px_rgba(15,23,42,0.06)] sm:gap-2.5 sm:flex-[1.2] sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none lg:min-h-0 lg:flex-[0.7]">
               <div className="flex items-start justify-between gap-3 sm:items-center sm:gap-4">
                 <h1 className="min-w-0 flex-1 font-sans text-[15px] font-semibold leading-snug text-[#0f172a] sm:text-lg">
                 Ancient Indian History MCQ
@@ -322,7 +327,7 @@ export default function ExamTestPage() {
                   {questions.length}
                 </span>
               </div>
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
+          <div className="flex min-h-[min(45vh,320px)] flex-1 flex-col overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.06)] sm:min-h-0">
             <div className="scrollbar-minimal min-h-0 flex-1 overflow-y-auto overscroll-contain px-1.5 pb-1.5 pt-1 sm:px-5 sm:pb-4">
               <div className="rounded-lg bg-white p-2 sm:p-4">
                 {hasComprehensionPassage && (
@@ -376,53 +381,53 @@ export default function ExamTestPage() {
                     />
                   </div>
                 )}
+
+                <div className="mt-3 rounded-xl border border-slate-200/90 bg-white p-2.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:mt-5 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+                  <p className="mb-2 text-[13px] font-semibold text-[#475569] sm:text-sm">
+                    Choose the answer:
+                  </p>
+                  <ul className="space-y-2">
+                    {q.options.map((opt, i) => {
+                      const letter = String.fromCharCode(65 + i);
+                      const isSel = selected === opt.id;
+                      return (
+                        <li key={opt.id}>
+                          <label
+                            className={clsx(
+                              "flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-lg border px-3 py-2.5 transition-all sm:min-h-14 sm:px-4 sm:py-3",
+                              isSel
+                                ? "border-[#1e2d3b] bg-slate-50 shadow-sm ring-1 ring-[#1e2d3b]/15"
+                                : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
+                            )}
+                          >
+                            <span className="min-w-0 flex-1 text-[13px] leading-snug text-[#334155] sm:text-sm">
+                              <span className="font-semibold text-[#0f172a]">
+                                {letter}.
+                              </span>{" "}
+                              {opt.option_text}
+                            </span>
+                            <input
+                              type="radio"
+                              name={`q-${q.id}`}
+                              checked={isSel}
+                              onChange={() =>
+                                dispatch(
+                                  setAnswer({
+                                    questionId: q.id,
+                                    optionId: opt.id,
+                                  })
+                                )
+                              }
+                              className="h-4 w-4 shrink-0 accent-[#1e2d3b]"
+                            />
+                          </label>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className="shrink-0 rounded-xl border border-slate-200/90 bg-white p-2.5 shadow-[0_1px_3px_rgba(15,23,42,0.06)] sm:border-0 sm:bg-transparent sm:p-0">
-            <p className="mb-2 text-[13px] font-semibold text-[#475569] sm:text-sm">
-              Choose the answer:
-            </p>
-            <ul className="space-y-2">
-              {q.options.map((opt, i) => {
-                const letter = String.fromCharCode(65 + i);
-                const isSel = selected === opt.id;
-                return (
-                  <li key={opt.id}>
-                    <label
-                      className={clsx(
-                        "flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-lg border px-3 py-2.5 transition-all sm:min-h-14 sm:px-4 sm:py-3",
-                        isSel
-                          ? "border-[#1e2d3b] bg-slate-50 shadow-sm ring-1 ring-[#1e2d3b]/15"
-                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
-                      )}
-                    >
-                      <span className="min-w-0 flex-1 text-[13px] leading-snug text-[#334155] sm:text-sm">
-                        <span className="font-semibold text-[#0f172a]">
-                          {letter}.
-                        </span>{" "}
-                        {opt.option_text}
-                      </span>
-                      <input
-                        type="radio"
-                        name={`q-${q.id}`}
-                        checked={isSel}
-                        onChange={() =>
-                          dispatch(
-                            setAnswer({
-                              questionId: q.id,
-                              optionId: opt.id,
-                            })
-                          )
-                        }
-                        className="h-4 w-4 shrink-0 accent-[#1e2d3b]"
-                      />
-                    </label>
-                  </li>
-                );
-              })}
-            </ul>
           </div>
 
           <div className="shrink-0 grid grid-cols-2 gap-1 sm:grid-cols-3 sm:gap-3">
@@ -471,7 +476,7 @@ export default function ExamTestPage() {
           </div>
         </section>
 
-        <aside className="flex min-h-0 w-full flex-1 flex-col rounded-xl border border-slate-200/80 bg-white p-1.5 shadow-[0_1px_3px_rgba(15,23,42,0.06)] sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none lg:h-full lg:w-80 lg:flex-[0.9] xl:w-88">
+        <aside className="flex max-h-[min(42vh,360px)] min-h-0 w-full shrink-0 flex-col rounded-xl border border-slate-200/80 bg-white p-1.5 shadow-[0_1px_3px_rgba(15,23,42,0.06)] sm:max-h-none sm:flex-1 sm:shrink sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none lg:h-full lg:w-80 lg:flex-[0.9] xl:w-88">
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
             <div className="shrink-0 ">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-2">
@@ -538,6 +543,12 @@ export default function ExamTestPage() {
         questionsAnswered={questionsAnswered}
         markedForReviewCount={markedForReviewCount}
         submitting={submitting}
+      />
+
+      <Spin
+        spinning={submitting}
+        fullscreen
+        size="large"
       />
 
       {showParagraph && hasComprehensionPassage && (

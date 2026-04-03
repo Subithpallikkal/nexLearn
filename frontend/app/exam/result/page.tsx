@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Spin } from "antd";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { setSubmitResult } from "@/app/store/examSlice";
@@ -11,7 +12,6 @@ import {
   type ExamMetaSnapshot,
 } from "@/lib/examResultStorage";
 import ExamHeader from "../components/ExamHeader";
-import ExamLoadingShell from "../components/ExamLoadingShell";
 import { MessageCircle, CheckSquare, SquareX, ClipboardList } from "lucide-react";
 
 type StatKey = "total" | "correct" | "wrong" | "skipped";
@@ -89,7 +89,13 @@ export default function ExamResultPage() {
   }, [dispatch, lastSubmitResult, meta, router]);
 
   if (!ready || !lastSubmitResult?.success) {
-    return <ExamLoadingShell />;
+    return (
+      <Spin
+        spinning
+        fullscreen
+        size="large"
+      />
+    );
   }
 
   const r = lastSubmitResult;
