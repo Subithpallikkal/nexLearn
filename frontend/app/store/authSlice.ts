@@ -1,9 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface UserDetails {
+export interface UserDetails {
   firstName: string;
   lastName: string;
   email: string;
+  qualification: string;
 }
 
 interface AuthState {
@@ -23,6 +24,7 @@ const initialState: AuthState = {
     firstName: "",
     lastName: "",
     email: "",
+    qualification: "",
   },
   isLoading: false,
   error: null,

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import {
   setStep,
@@ -10,31 +11,17 @@ import {
   setLoading,
   setError,
 } from "@/app/store/authSlice";
-import ProgressSteps from "@/app/components/ui/ProgressSteps";
-import Input from "@/app/components/ui/Input";
-import Button from "@/app/components/ui/Button";
-import OtpInput from "@/app/components/ui/OtpInput";
-import { Phone, Mail, User, ArrowLeft, ArrowRight, ChevronDown } from "lucide-react";
 import axios from "axios";
-
-const steps = [
-  { id: 1, label: "Phone" },
-  { id: 2, label: "Verify" },
-  { id: 3, label: "Details" },
-];
-
-const countryCodes = [
-  { code: "+91", country: "India", flag: "🇮🇳" },
-  { code: "+1", country: "USA", flag: "🇺🇸" },
-  { code: "+44", country: "UK", flag: "🇬🇧" },
-  { code: "+61", country: "Australia", flag: "🇦🇺" },
-  { code: "+971", country: "UAE", flag: "🇦🇪" },
-  { code: "+966", country: "Saudi Arabia", flag: "🇸🇦" },
-  { code: "+65", country: "Singapore", flag: "🇸🇬" },
-  { code: "+60", country: "Malaysia", flag: "🇲🇾" },
-];
+import { authService } from "@/lib/auth";
+import { countryCodes, type CountryOption } from "./constants";
+import CreateAccountBranding from "./components/CreateAccountBranding";
+import CreateAccountFooter from "./components/CreateAccountFooter";
+import DetailsStep from "./components/DetailsStep";
+import OtpStep from "./components/OtpStep";
+import PhoneStep from "./components/PhoneStep";
 
 export default function CreateAccountPage() {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { step, phoneNumber, otp, userDetails, isLoading, error } =
     useAppSelector((state) => state.auth);
@@ -43,8 +30,14 @@ export default function CreateAccountPage() {
   const [otpError, setOtpError] = useState("");
   const [detailsError, setDetailsError] = useState<Record<string, string>>({});
   const [resendTimer, setResendTimer] = useState(0);
-  const [selectedCountry, setSelectedCountry] = useState(countryCodes[0]);
+  const [selectedCountry, setSelectedCountry] = useState<CountryOption>(
+    countryCodes[0]
+  );
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [profileFile, setProfileFile] = useState<File | null>(null);
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const profileInputRef = useRef<HTMLInputElement>(null);
+  const [authGateReady, setAuthGateReady] = useState(false);
 
   const validatePhone = (phone: string): boolean => {
     const phoneRegex = /^[6-9]\d{9}$/;
@@ -70,7 +63,7 @@ export default function CreateAccountPage() {
       await axios.post("/api/auth/send-otp", formData);
       dispatch(setStep(2));
       setResendTimer(30);
-    } catch (err) {
+    } catch {
       dispatch(setError("Failed to send OTP. Please try again."));
     } finally {
       dispatch(setLoading(false));
@@ -86,12 +79,24 @@ export default function CreateAccountPage() {
 
     dispatch(setLoading(true));
     try {
-      await axios.post("/api/auth/verify-otp", {
-        mobile: `${selectedCountry.code}${phoneNumber}`,
-        otp,
-      });
+      const fd = new FormData();
+      fd.append("mobile", `${selectedCountry.code}${phoneNumber}`);
+      fd.append("otp", otp);
+      const { data } = await axios.post("/api/auth/verify-otp", fd);
+      if (data.success === false) {
+        setOtpError(data.message || "Invalid OTP. Please try again.");
+        return;
+      }
+      if (data.login && data.access_token) {
+        authService.setTokens({
+          accessToken: data.access_token,
+          refreshToken: data.refresh_token ?? "",
+        });
+        router.push("/exam/instructions");
+        return;
+      }
       dispatch(setStep(3));
-    } catch (err) {
+    } catch {
       setOtpError("Invalid OTP. Please try again.");
     } finally {
       dispatch(setLoading(false));
@@ -106,7 +111,7 @@ export default function CreateAccountPage() {
       await axios.post("/api/auth/send-otp", formData);
       setResendTimer(30);
       setOtpError("");
-    } catch (err) {
+    } catch {
       setOtpError("Failed to resend OTP. Please try again.");
     }
   };
@@ -115,15 +120,18 @@ export default function CreateAccountPage() {
     const errors: Record<string, string> = {};
 
     if (!userDetails.firstName.trim()) {
-      errors.firstName = "First name is required";
-    }
-    if (!userDetails.lastName.trim()) {
-      errors.lastName = "Last name is required";
+      errors.firstName = "Name is required";
     }
     if (!userDetails.email.trim()) {
       errors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userDetails.email)) {
       errors.email = "Please enter a valid email";
+    }
+    if (!userDetails.qualification.trim()) {
+      errors.qualification = "Qualification is required";
+    }
+    if (!profileFile) {
+      errors.profile = "Profile picture is required";
     }
 
     setDetailsError(errors);
@@ -132,17 +140,39 @@ export default function CreateAccountPage() {
 
   const handleRegister = async () => {
     if (!validateDetails()) return;
+    if (!profileFile) return;
 
     dispatch(setLoading(true));
     try {
       const formData = new FormData();
-      formData.append("mobile", `+91${phoneNumber}`);
-      formData.append("firstName", userDetails.firstName);
-      formData.append("lastName", userDetails.lastName);
-      formData.append("email", userDetails.email);
-      await axios.post("/api/auth/register", formData);
-      alert("Account created successfully!");
-    } catch (err) {
+      formData.append("mobile", `${selectedCountry.code}${phoneNumber}`);
+      const nameParts = userDetails.firstName
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+      const firstName = nameParts[0] || "";
+      const lastName =
+        nameParts.slice(1).join(" ") || firstName || "User";
+      formData.append("firstName", firstName);
+      formData.append("lastName", lastName);
+      formData.append("email", userDetails.email.trim());
+      formData.append("qualification", userDetails.qualification.trim());
+      formData.append("profile_image", profileFile);
+      const { data } = await axios.post("/api/auth/register", formData);
+      if (data.success === false) {
+        dispatch(
+          setError(data.message || "Failed to create account. Please try again.")
+        );
+        return;
+      }
+      if (data.access_token) {
+        authService.setTokens({
+          accessToken: data.access_token,
+          refreshToken: data.refresh_token ?? "",
+        });
+      }
+      router.push("/exam/instructions");
+    } catch {
       dispatch(setError("Failed to create account. Please try again."));
     } finally {
       dispatch(setLoading(false));
@@ -156,268 +186,142 @@ export default function CreateAccountPage() {
     }
   };
 
+  useEffect(() => {
+    if (authService.getAccessToken()) {
+      router.replace("/exam/instructions");
+      return;
+    }
+    setAuthGateReady(true);
+  }, [router]);
+
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const id = setTimeout(() => setResendTimer((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [resendTimer]);
+
+  useEffect(() => {
+    return () => {
+      if (profilePreview) URL.revokeObjectURL(profilePreview);
+    };
+  }, [profilePreview]);
+
+  if (!authGateReady) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-[#050508] text-sm text-slate-400">
+        Loading…
+      </div>
+    );
+  }
+
   return (
-    <main className="min-h-screen flex flex-col lg:flex-row bg-[url('/dark-nature-blue-abstract-creative-background.svg')] bg-cover bg-center">
-      <div className="flex-1 hidden lg:flex items-center justify-center p-8">
-          <div className="text-center space-y-6">
-            <img 
-              src="/namelogo.svg" 
-              alt="Logo" 
-              className="w-64 mx-auto"
-            />
-            <img 
-              src="/create_form_sticker.svg" 
-              alt="Sticker" 
-              className="w-80 mx-auto mt-8"
-            />
-          </div>
-        </div>
-      <div className="flex-1 flex items-center justify-center px-4 py-8">
-        <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="mb-8">
-              <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">
-                Create Account
-              </h1>
-              <p className="text-gray-500 text-center text-sm">
-                Join us to get started with your journey
-              </p>
-            </div>
+    <main className="relative flex min-h-dvh w-full flex-col items-center justify-center bg-[#050508] px-4 py-8 font-sans sm:py-10">
+      <div
+        className="pointer-events-none fixed inset-0 z-0 bg-[url('/dark-nature-blue-abstract-creative-background.svg')] bg-cover bg-center bg-no-repeat opacity-[0.38]"
+        aria-hidden
+      />
+      <div
+        className="scrollbar-minimal-on-dark relative z-20 flex w-full max-w-216.5 flex-col overflow-x-hidden overflow-y-auto rounded-2xl border border-slate-900/40 bg-linear-to-br from-[#1e2d3b] via-[#1a3d4a] to-[#0f1a24] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.35)] md:flex-row md:h-125.25 md:overflow-hidden max-md:max-h-[90vh]"
+        role="dialog"
+        aria-label="Create account"
+      >
+        <CreateAccountBranding />
 
-            <div className="mb-8">
-              <ProgressSteps steps={steps} currentStep={step} />
-            </div>
-
-            {error && (
-              <div
-                className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"
-                role="alert"
-              >
-                {error}
-              </div>
-            )}
-
-            <div className="min-h-[280px]">
-              {step === 1 && (
-                <div className="space-y-6 animate-fadeIn">
-                  <div className="text-center mb-6">
-                    <h2 className="text-lg font-semibold text-gray-900">
-                      Enter your phone number
-                    </h2>
-                    <p className="text-gray-500 text-sm mt-1">
-                      We will send you a verification code
-                    </p>
-                  </div>
-
-                  <div className="relative">
-                    <div className="flex">
-                      <div className="relative">
-                        <button
-                          type="button"
-                          onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                          className="flex items-center gap-2 px-4 py-3 bg-gray-50 border border-r-0 border-gray-200 rounded-l-xl text-gray-700 hover:bg-gray-100 transition-colors"
-                        >
-                          <span>{selectedCountry.flag}</span>
-                          <span className="font-medium">{selectedCountry.code}</span>
-                          <ChevronDown className="w-4 h-4" />
-                        </button>
-                        {showCountryDropdown && (
-                          <div className="absolute z-10 top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-xl shadow-lg max-h-64 overflow-y-auto">
-                            {countryCodes.map((country) => (
-                              <button
-                                key={country.code}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedCountry(country);
-                                  setShowCountryDropdown(false);
-                                }}
-                                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors"
-                              >
-                                <span>{country.flag}</span>
-                                <span className="text-gray-700">{country.country}</span>
-                                <span className="text-gray-400 ml-auto">{country.code}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <Input
-                        type="tel"
-                        placeholder="Enter phone number"
-                        value={phoneNumber}
-                        onChange={(e) => {
-                          dispatch(setPhoneNumber(e.target.value));
-                          setPhoneError("");
-                        }}
-                        leftIcon={<Phone className="w-5 h-5" />}
-                        error={phoneError}
-                        maxLength={10}
-                        aria-label="Phone number"
-                        className="rounded-l-none"
-                      />
-                    </div>
-                  </div>
-
-                  <Button
-                    onClick={handleSendOtp}
-                    isLoading={isLoading}
-                    className="w-full"
-                    size="lg"
-                    rightIcon={<ArrowRight className="w-5 h-5" />}
-                  >
-                    Send OTP
-                  </Button>
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-transparent p-1.5 sm:p-2 md:min-h-0 md:flex-none md:basis-[51%] md:py-2 md:pr-2 md:pl-1.5">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col rounded-xl border border-slate-200/90 bg-white shadow-sm">
+            <div className="scrollbar-minimal flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-6 pb-4 sm:px-6 md:px-7 md:pt-8">
+              {error && (
+                <div
+                  className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"
+                  role="alert"
+                >
+                  {error}
                 </div>
               )}
 
-              {step === 2 && (
-                <div className="space-y-6 animate-fadeIn">
-                  <div className="text-center mb-6">
-                    <h2 className="text-lg font-semibold text-gray-900">
-                      Verify your phone number
-                    </h2>
-                    <p className="text-gray-500 text-sm mt-1">
-                      Enter the 4-digit code sent to{" "}
-                      <span className="font-medium text-gray-700">
-                        {selectedCountry.code} {phoneNumber}
-                      </span>
-                    </p>
-                  </div>
+              <div className="flex min-h-0 flex-1 flex-col md:min-h-0">
+                {step === 1 && (
+                  <PhoneStep
+                    phoneNumber={phoneNumber}
+                    phoneError={phoneError}
+                    selectedCountry={selectedCountry}
+                    showCountryDropdown={showCountryDropdown}
+                    onPhoneDigitsChange={(v) => {
+                      dispatch(setPhoneNumber(v));
+                      setPhoneError("");
+                    }}
+                    onToggleCountryDropdown={() =>
+                      setShowCountryDropdown((o) => !o)
+                    }
+                    onSelectCountry={(c) => {
+                      setSelectedCountry(c);
+                      setShowCountryDropdown(false);
+                    }}
+                  />
+                )}
 
-                  <OtpInput
-                    length={6}
-                    value={otp}
-                    onChange={(value) => {
-                      dispatch(setOtp(value));
+                {step === 2 && (
+                  <OtpStep
+                    otp={otp}
+                    otpError={otpError}
+                    isLoading={isLoading}
+                    selectedCountry={selectedCountry}
+                    phoneNumber={phoneNumber}
+                    resendTimer={resendTimer}
+                    onOtpDigitsChange={(v) => {
+                      dispatch(setOtp(v));
                       setOtpError("");
                     }}
-                    error={otpError}
-                    disabled={isLoading}
+                    onResend={handleResendOtp}
+                    onBack={goBack}
                   />
+                )}
 
-                  <div className="text-center">
-                    <button
-                      onClick={handleResendOtp}
-                      disabled={resendTimer > 0}
-                      className="text-blue-600 hover:text-blue-700 text-sm font-medium disabled:text-gray-400 disabled:cursor-not-allowed"
-                    >
-                      {resendTimer > 0
-                        ? `Resend OTP in ${resendTimer}s`
-                        : "Didn't receive code? Resend"}
-                    </button>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <Button
-                      onClick={goBack}
-                      variant="outline"
-                      className="flex-1"
-                      leftIcon={<ArrowLeft className="w-5 h-5" />}
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      onClick={handleVerifyOtp}
-                      isLoading={isLoading}
-                      className="flex-1"
-                      rightIcon={<ArrowRight className="w-5 h-5" />}
-                    >
-                      Verify
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {step === 3 && (
-                <div className="space-y-6 animate-fadeIn">
-                  <div className="text-center mb-6">
-                    <h2 className="text-lg font-semibold text-gray-900">
-                      Add your details
-                    </h2>
-                    <p className="text-gray-500 text-sm mt-1">
-                      Complete your profile information
-                    </p>
-                  </div>
-
-                  <Input
-                    type="text"
-                    placeholder="First name"
-                    value={userDetails.firstName}
-                    onChange={(e) => {
-                      dispatch(
-                        setUserDetails({ firstName: e.target.value })
-                      );
-                      setDetailsError((prev) => ({
-                        ...prev,
-                        firstName: "",
-                      }));
+                {step === 3 && (
+                  <DetailsStep
+                    userDetails={userDetails}
+                    detailsError={detailsError}
+                    profilePreview={profilePreview}
+                    profileInputRef={profileInputRef}
+                    onProfileFileChange={(f) => {
+                      if (!f) {
+                        setProfileFile(null);
+                        setProfilePreview(null);
+                        return;
+                      }
+                      setProfileFile(f);
+                      setProfilePreview(URL.createObjectURL(f));
+                      setDetailsError((prev) => ({ ...prev, profile: "" }));
                     }}
-                    leftIcon={<User className="w-5 h-5" />}
-                    error={detailsError.firstName}
-                    aria-label="First name"
-                  />
-
-                  <Input
-                    type="text"
-                    placeholder="Last name"
-                    value={userDetails.lastName}
-                    onChange={(e) => {
-                      dispatch(setUserDetails({ lastName: e.target.value }));
-                      setDetailsError((prev) => ({
-                        ...prev,
-                        lastName: "",
-                      }));
+                    onFirstNameChange={(value) => {
+                      dispatch(setUserDetails({ firstName: value }));
+                      setDetailsError((prev) => ({ ...prev, firstName: "" }));
                     }}
-                    leftIcon={<User className="w-5 h-5" />}
-                    error={detailsError.lastName}
-                    aria-label="Last name"
-                  />
-
-                  <Input
-                    type="email"
-                    placeholder="Email address"
-                    value={userDetails.email}
-                    onChange={(e) => {
-                      dispatch(setUserDetails({ email: e.target.value }));
+                    onEmailChange={(value) => {
+                      dispatch(setUserDetails({ email: value }));
                       setDetailsError((prev) => ({ ...prev, email: "" }));
                     }}
-                    leftIcon={<Mail className="w-5 h-5" />}
-                    error={detailsError.email}
-                    aria-label="Email address"
+                    onQualificationChange={(value) => {
+                      dispatch(setUserDetails({ qualification: value }));
+                      setDetailsError((prev) => ({
+                        ...prev,
+                        qualification: "",
+                      }));
+                    }}
+                    onBack={goBack}
                   />
-
-                  <div className="flex gap-3">
-                    <Button
-                      onClick={goBack}
-                      variant="outline"
-                      className="flex-1"
-                      leftIcon={<ArrowLeft className="w-5 h-5" />}
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      onClick={handleRegister}
-                      isLoading={isLoading}
-                      className="flex-1"
-                      rightIcon={<ArrowRight className="w-5 h-5" />}
-                    >
-                      Create Account
-                    </Button>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
 
-          <p className="text-center text-gray-500 text-sm mt-6">
-            Already have an account?{" "}
-            <a
-              href="/login"
-              className="text-blue-600 hover:text-blue-700 font-medium"
-            >
-              Sign in
-            </a>
-          </p>
+            <CreateAccountFooter
+              step={step}
+              isLoading={isLoading}
+              onSendOtp={handleSendOtp}
+              onVerifyOtp={handleVerifyOtp}
+              onRegister={handleRegister}
+            />
+          </div>
         </div>
       </div>
     </main>

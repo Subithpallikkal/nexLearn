@@ -20,7 +20,19 @@ export async function GET(request: Request) {
       },
     });
 
-    const data = await response.json();
+    const raw = await response.text();
+    let data: unknown;
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch {
+      data = {
+        success: false,
+        message:
+          raw.trim().slice(0, 300) ||
+          `Upstream returned ${response.status} with non-JSON body`,
+      };
+    }
+
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
     console.error("List questions error:", error);

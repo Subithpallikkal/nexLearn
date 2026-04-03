@@ -62,7 +62,7 @@ export default function ProgressSteps({ steps, currentStep }: ProgressStepsProps
               {!isLast && (
                 <div
                   className={clsx(
-                    "flex-1 h-0.5 mx-4 mt-[-20px]",
+                    "flex-1 h-0.5 mx-4 -mt-5",
                     isCompleted ? "bg-blue-600" : "bg-gray-200"
                   )}
                   aria-hidden="true"

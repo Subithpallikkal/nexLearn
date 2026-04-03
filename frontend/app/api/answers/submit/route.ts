@@ -4,17 +4,43 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://nexlearn.noviindusd
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { answers, token } = body;
+    const contentType = request.headers.get("content-type") || "";
+    let answers: unknown;
+    let tokenFromBody: string | undefined;
 
-    if (!answers) {
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      const answersRaw = formData.get("answers");
+      if (typeof answersRaw !== "string") {
+        return NextResponse.json(
+          { success: false, message: "answers must be a JSON string in form data" },
+          { status: 400 }
+        );
+      }
+      try {
+        answers = JSON.parse(answersRaw);
+      } catch {
+        return NextResponse.json(
+          { success: false, message: "answers must be valid JSON" },
+          { status: 400 }
+        );
+      }
+    } else {
+      const body = await request.json();
+      answers = body.answers;
+      tokenFromBody = body.token;
+    }
+
+    if (!answers || !Array.isArray(answers)) {
       return NextResponse.json(
-        { success: false, message: "Answers are required" },
+        { success: false, message: "answers array is required" },
         { status: 400 }
       );
     }
 
-    const authToken = token || request.headers.get("authorization")?.replace("Bearer ", "");
+    const authToken =
+      tokenFromBody ||
+      request.headers.get("authorization")?.replace("Bearer ", "");
 
     if (!authToken) {
       return NextResponse.json(
@@ -23,13 +49,15 @@ export async function POST(request: Request) {
       );
     }
 
+    const apiFormData = new FormData();
+    apiFormData.append("answers", JSON.stringify(answers));
+
     const response = await fetch(`${BASE_URL}/answers/submit`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
       },
-      body: JSON.stringify({ answers }),
+      body: apiFormData,
     });
 
     const data = await response.json();
