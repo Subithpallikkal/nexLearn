@@ -286,7 +286,7 @@ export default function ExamTestPage() {
             <div className="min-w-0">
               <p className="text-sm font-semibold text-[#0f172a]">Menu</p>
               <p className="truncate text-xs text-slate-500">
-                Ancient Indian History MCQ
+                {meta.title}
               </p>
             </div>
             <button
@@ -320,7 +320,7 @@ export default function ExamTestPage() {
         <section className="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5 rounded-xl border border-slate-200/80 bg-white p-1.5 shadow-[0_1px_3px_rgba(15,23,42,0.06)] sm:gap-2.5 sm:flex-[1.2] sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none lg:min-h-0 lg:flex-[0.7]">
               <div className="flex items-start justify-between gap-3 sm:items-center sm:gap-4">
                 <h1 className="min-w-0 flex-1 font-sans text-[15px] font-semibold leading-snug text-[#0f172a] sm:text-lg">
-                Ancient Indian History MCQ
+                {meta.title}
                 </h1>
                 <span className="inline-flex h-7 shrink items-center justify-center rounded-md border border-slate-200 bg-slate-50 px-2.5 text-[10px] font-semibold tabular-nums text-[#475569] sm:h-8 sm:w-8 sm:px-0 sm:text-xs">
                   {String(currentIndex + 1).padStart(qNumPad, "0")}/

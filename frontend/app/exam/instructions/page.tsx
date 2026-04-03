@@ -106,7 +106,7 @@ export default function ExamInstructionsPage() {
                     className="h-9 w-auto max-w-[min(320px,78vw)] object-contain brightness-0 sm:h-11"
                   /> */}
                   <h1 className="text-center font-sans text-lg font-semibold leading-tight text-[#0f172a] sm:text-lg">
-                  Ancient Indian History MCQ
+                  {meta.title}
                   </h1>
                 </div>
 
