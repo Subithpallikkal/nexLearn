@@ -93,9 +93,9 @@ export default function ExamInstructionsPage() {
           )}
 
           {!fetching && !error && meta && (
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-5 sm:px-6 sm:py-8">
-              <div className="mx-auto flex h-full min-h-0 w-full max-w-170.5 flex-col gap-6 sm:gap-8">
-                <div className="flex shrink-0 flex-col items-center gap-3 sm:gap-4">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-4 sm:px-6 sm:py-5">
+              <div className="mx-auto flex h-full min-h-0 w-full max-w-170.5 flex-col gap-4 sm:gap-5">
+                <div className="flex shrink-0 flex-col items-center gap-2 sm:gap-3">
                   {/* SVG uses white fills — on bg-white it was invisible; brightness-0 renders a dark logo */}
                   {/* eslint-disable-next-line @next/next/no-img-element -- SVG brand asset */}
                   {/* <img
@@ -111,41 +111,41 @@ export default function ExamInstructionsPage() {
                 </div>
 
                 <div
-                  className="mx-auto grid w-full shrink-0 grid-cols-3 divide-x divide-white/25 overflow-hidden rounded-[7.91px] bg-[#1e2d3b] text-center text-white sm:h-[135.85px] sm:items-stretch"
+                  className="mx-auto grid w-full shrink-0 grid-cols-3 divide-x divide-white/25 overflow-hidden rounded-[7.91px] bg-[#1e2d3b] text-center text-white"
                   role="group"
                   aria-label="Exam summary"
                 >
-                  <div className="flex min-w-0 flex-col justify-center gap-1 px-2 py-3 sm:px-[10.55px] sm:py-[22.42px]">
-                    <p className="font-sans text-[15.82px] font-semibold leading-[1.44] tracking-normal text-white/90">
+                  <div className="flex min-w-0 flex-col justify-center gap-0.5 px-2 py-2.5 sm:px-3 sm:py-3">
+                    <p className="font-sans text-xs font-semibold leading-[1.44] tracking-normal text-white/90 sm:text-sm">
                       Total MCQ&apos;s:
                     </p>
-                    <p className="font-sans text-xl font-semibold tabular-nums text-white sm:text-2xl">
+                    <p className="font-sans text-lg font-semibold tabular-nums text-white sm:text-xl">
                       {meta.questions_count}
                     </p>
                   </div>
-                  <div className="flex min-w-0 flex-col justify-center gap-1 px-2 py-3 sm:px-[10.55px] sm:py-[22.42px]">
-                    <p className="font-sans text-[15.82px] font-semibold leading-[1.44] tracking-normal text-white/90">
+                  <div className="flex min-w-0 flex-col justify-center gap-0.5 px-2 py-2.5 sm:px-3 sm:py-3">
+                    <p className="font-sans text-xs font-semibold leading-[1.44] tracking-normal text-white/90 sm:text-sm">
                       Total marks:
                     </p>
-                    <p className="font-sans text-xl font-semibold tabular-nums text-white sm:text-2xl">
+                    <p className="font-sans text-lg font-semibold tabular-nums text-white sm:text-xl">
                       {meta.total_marks}
                     </p>
                   </div>
-                  <div className="flex min-w-0 flex-col justify-center gap-1 px-2 py-3 sm:px-[10.55px] sm:py-[22.42px]">
-                    <p className="font-sans text-[15.82px] font-semibold leading-[1.44] tracking-normal text-white/90">
+                  <div className="flex min-w-0 flex-col justify-center gap-0.5 px-2 py-2.5 sm:px-3 sm:py-3">
+                    <p className="font-sans text-xs font-semibold leading-[1.44] tracking-normal text-white/90 sm:text-sm">
                       Total time:
                     </p>
-                    <p className="font-sans text-xl font-semibold tabular-nums text-white sm:text-2xl">
+                    <p className="font-sans text-lg font-semibold tabular-nums text-white sm:text-xl">
                       {displayTotalTime(meta.total_time)}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex min-h-0 flex-1 flex-col  text-left">
-                  <h2 className="shrink-0 font-sans text-sm font-semibold text-[#0f172a] sm:text-base">
+                <div className="flex min-h-0 flex-1 flex-col text-left">
+                  <h2 className="shrink-0 font-sans text-sm font-semibold text-[#0f172a] sm:text-base mb-2 sm:mb-3">
                     Instructions:
                   </h2>
-                  <ol className="scrollbar-none list-decimal space-y-1.5 overflow-y-auto pl-5 pr-1 text-xs leading-snug text-[#475569] marker:font-semibold sm:space-y-2 sm:pl-6 sm:text-[13px] sm:leading-relaxed">
+                  <ol className="scrollbar-none list-decimal pl-5 pr-1 text-xs leading-snug text-[#475569] marker:font-semibold sm:space-y-1.5 sm:pl-6 sm:text-[13px] sm:leading-relaxed">
                     {instructionLines.map((line, i) => (
                       <li key={i} className="pl-1">
                         {line.replace(/^\d+\.\s*/, "")}
