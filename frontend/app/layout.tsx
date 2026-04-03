@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { Inter } from "next/font/google";
 import ReduxProvider from "./store/ReduxProvider";
 import "./globals.css";
@@ -27,7 +28,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className={`${inter.variable} h-full antialiased`}>
-        <ReduxProvider>{children}</ReduxProvider>
+        <AntdRegistry>
+          <ReduxProvider>{children}</ReduxProvider>
+        </AntdRegistry>
       </body>
     </html>
   );

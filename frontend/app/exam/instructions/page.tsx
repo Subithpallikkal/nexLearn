@@ -77,14 +77,14 @@ export default function ExamInstructionsPage() {
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
           {fetching && (
             <div className="flex flex-1 items-center justify-center p-6">
-              <p className="text-slate-600">Loading exam…</p>
+              <p className="text-base text-slate-600">Loading exam…</p>
             </div>
           )}
 
           {error && (
             <div className="flex flex-1 flex-col justify-center p-6">
               <div
-                className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+                className="rounded-xl border border-red-200 bg-red-50 p-4 text-base text-red-700 sm:text-sm"
                 role="alert"
               >
                 {error}
@@ -105,7 +105,7 @@ export default function ExamInstructionsPage() {
                     height={84}
                     className="h-9 w-auto max-w-[min(320px,78vw)] object-contain brightness-0 sm:h-11"
                   /> */}
-                  <h1 className="text-center font-sans text-base font-semibold leading-tight text-[#0f172a] sm:text-lg">
+                  <h1 className="text-center font-sans text-lg font-semibold leading-tight text-[#0f172a] sm:text-lg">
                   Ancient Indian History MCQ
                   </h1>
                 </div>
@@ -116,36 +116,36 @@ export default function ExamInstructionsPage() {
                   aria-label="Exam summary"
                 >
                   <div className="flex min-w-0 flex-col justify-center gap-0.5 px-2 py-2.5 sm:px-3 sm:py-3">
-                    <p className="font-sans text-xs font-semibold leading-[1.44] tracking-normal text-white/90 sm:text-sm">
+                    <p className="font-sans text-sm font-semibold leading-[1.44] tracking-normal text-white/90 sm:text-sm">
                       Total MCQ&apos;s:
                     </p>
-                    <p className="font-sans text-lg font-semibold tabular-nums text-white sm:text-xl">
+                    <p className="font-sans text-xl font-semibold tabular-nums text-white sm:text-xl">
                       {meta.questions_count}
                     </p>
                   </div>
                   <div className="flex min-w-0 flex-col justify-center gap-0.5 px-2 py-2.5 sm:px-3 sm:py-3">
-                    <p className="font-sans text-xs font-semibold leading-[1.44] tracking-normal text-white/90 sm:text-sm">
+                    <p className="font-sans text-sm font-semibold leading-[1.44] tracking-normal text-white/90 sm:text-sm">
                       Total marks:
                     </p>
-                    <p className="font-sans text-lg font-semibold tabular-nums text-white sm:text-xl">
+                    <p className="font-sans text-xl font-semibold tabular-nums text-white sm:text-xl">
                       {meta.total_marks}
                     </p>
                   </div>
                   <div className="flex min-w-0 flex-col justify-center gap-0.5 px-2 py-2.5 sm:px-3 sm:py-3">
-                    <p className="font-sans text-xs font-semibold leading-[1.44] tracking-normal text-white/90 sm:text-sm">
+                    <p className="font-sans text-sm font-semibold leading-[1.44] tracking-normal text-white/90 sm:text-sm">
                       Total time:
                     </p>
-                    <p className="font-sans text-lg font-semibold tabular-nums text-white sm:text-xl">
+                    <p className="font-sans text-xl font-semibold tabular-nums text-white sm:text-xl">
                       {displayTotalTime(meta.total_time)}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex min-h-0 flex-1 flex-col text-left">
-                  <h2 className="shrink-0 font-sans text-sm font-semibold text-[#0f172a] sm:text-base mb-2 sm:mb-3">
+                  <h2 className="mb-2 shrink-0 font-sans text-base font-semibold text-[#0f172a] sm:mb-3 sm:text-base">
                     Instructions:
                   </h2>
-                  <ol className="scrollbar-none list-decimal pl-5 pr-1 text-xs leading-snug text-[#475569] marker:font-semibold sm:space-y-1.5 sm:pl-6 sm:text-[13px] sm:leading-relaxed">
+                  <ol className="scrollbar-none list-decimal pl-5 pr-1 text-sm leading-relaxed text-[#475569] marker:font-semibold sm:space-y-1.5 sm:pl-6 sm:text-[13px] sm:leading-relaxed">
                     {instructionLines.map((line, i) => (
                       <li key={i} className="pl-1">
                         {line.replace(/^\d+\.\s*/, "")}
@@ -158,7 +158,7 @@ export default function ExamInstructionsPage() {
                   <Button
                     type="button"
                     onClick={startTest}
-                    className="min-w-50 rounded-lg border-0 bg-[#1e2d3b]! px-8 py-2.5 text-sm font-semibold text-white! shadow-none hover:bg-[#1a2838]! sm:py-3"
+                    className="min-w-50 rounded-lg border-0 bg-[#1e2d3b]! px-8 py-2.5 text-base font-semibold text-white! shadow-none hover:bg-[#1a2838]! sm:py-3 sm:text-sm"
                     size="md"
                   >
                     Start Test

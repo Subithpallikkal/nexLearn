@@ -103,7 +103,18 @@ function normalizeQuestion(
   }
 
   const img = pickStr(
-    raw.image ?? raw.image_url ?? raw.imageUrl ?? raw.question_image ?? raw.questionImage
+    raw.image ??
+      raw.image_url ??
+      raw.imageUrl ??
+      raw.question_image ??
+      raw.questionImage ??
+      raw.media_url ??
+      raw.mediaUrl ??
+      raw.picture ??
+      raw.photo ??
+      raw.diagram ??
+      raw.diagram_url ??
+      raw.diagramUrl
   );
   const comprehension = resolveComprehension(raw);
   const text =

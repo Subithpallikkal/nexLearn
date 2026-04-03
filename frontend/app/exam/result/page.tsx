@@ -104,34 +104,34 @@ export default function ExamResultPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-[#e8eef5]">
+    <div className="h-dvh overflow-hidden bg-[#f8fdff]">
       <ExamHeader />
 
-      <main className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-lg items-center justify-center px-4 py-8 sm:px-6">
-        <div className="w-full overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_20px_50px_-12px_rgba(15,23,42,0.18)]">
-          <div className="bg-gradient-to-br from-[#1a4d5c] via-[#1e2d3b] to-[#152a33] px-6 py-8 text-center sm:px-8 sm:py-10">
-            <p className="text-sm font-medium text-white/90">Marks Obtained:</p>
-            <p className="mt-2 font-sans text-4xl font-bold tabular-nums text-white sm:text-5xl">
+      <main className="mx-auto flex h-[calc(100dvh-4rem)] max-w-md items-center justify-center px-3 py-3 sm:px-4 sm:py-4">
+        <div className="w-full max-w-90 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_16px_36px_-16px_rgba(15,23,42,0.35)]">
+          <div className="bg-linear-to-br from-[#0b6381] via-[#165f77] to-[#0e3c56] px-6 py-5 text-center">
+            <p className="text-[15px] font-medium text-white/90">Marks Obtained:</p>
+            <p className="mt-1 font-sans text-5xl font-bold tabular-nums leading-tight text-white">
               {r.score}
-              <span className="text-white/70"> / {totalMarks}</span>
+              <span className="text-white/80"> / {totalMarks}</span>
             </p>
           </div>
 
-          <div className="divide-y divide-slate-100 px-5 py-2 sm:px-6">
+          <div className="divide-y divide-slate-100 px-4">
             {STAT_ROWS.map(({ key, label, Icon, iconBg }) => (
               <div
                 key={key}
-                className="flex items-center justify-between gap-4 py-4"
+                className="flex items-center justify-between gap-4 py-3"
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <span
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white ${iconBg}`}
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded text-white ${iconBg}`}
                   >
-                    <Icon className="h-5 w-5" strokeWidth={2} />
+                    <Icon className="h-4 w-4" strokeWidth={2.4} />
                   </span>
-                  <span className="text-sm text-[#334155]">{label}</span>
+                  <span className="text-[17px] text-[#334155]">{label}</span>
                 </div>
-                <span className="text-sm font-semibold tabular-nums text-[#0f172a]">
+                <span className="text-[24px] font-semibold tabular-nums leading-none text-[#0f172a]">
                   {pad3(values[key])}
                 </span>
               </div>
@@ -144,11 +144,11 @@ export default function ExamResultPage() {
             </p>
           )}
 
-          <div className="p-5 pt-2">
+          <div className="p-4 pt-2">
             <button
               type="button"
               onClick={() => router.replace("/")}
-              className="w-full rounded-b-xl rounded-t-lg bg-[#1e2d3b] py-3.5 text-sm font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#1a2838]"
+              className="w-full rounded-md bg-[#1e2d3b] py-2.5 text-[15px] font-semibold text-white transition-colors hover:bg-[#1a2838]"
             >
               Done
             </button>
