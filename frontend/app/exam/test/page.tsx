@@ -180,11 +180,11 @@ export default function ExamTestPage() {
     const answered = ans != null;
 
     let base =
-      "flex aspect-square w-full min-w-0 items-center justify-center rounded-[4px] border text-[12px] font-semibold leading-none tabular-nums shadow-[0_1px_2px_rgba(15,23,42,0.06)] transition-colors sm:mx-auto sm:max-w-[84px] sm:rounded-[7px] sm:text-[14px] md:text-[16px]";
+      "flex aspect-square w-full min-w-0 items-center justify-center rounded-[2px] border text-[10px] font-semibold leading-none tabular-nums shadow-[0_1px_2px_rgba(15,23,42,0.06)] transition-colors sm:mx-auto sm:max-w-[84px] sm:rounded-[7px] sm:text-[14px] md:text-[16px]";
 
     if (current) {
       base +=
-        " z-[1] ring-[3px] ring-[#7b1fa2] ring-offset-0 sm:ring-[5px]";
+        " z-[1] ring-2 ring-[#7b1fa2] ring-offset-0 sm:ring-[5px]";
     }
 
     if (answered) {
@@ -476,19 +476,19 @@ export default function ExamTestPage() {
           </div>
         </section>
 
-        <aside className="flex max-h-[min(42vh,360px)] min-h-0 w-full shrink-0 flex-col rounded-xl border border-slate-200/80 bg-white p-1.5 shadow-[0_1px_3px_rgba(15,23,42,0.06)] sm:max-h-none sm:flex-1 sm:shrink sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none lg:h-full lg:w-80 lg:flex-[0.9] xl:w-88">
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
-            <div className="shrink-0 ">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-2">
-                <span className="text-[13px] font-semibold text-[#334155] sm:text-sm">
+        <aside className="flex max-h-[min(26vh,200px)] min-h-0 w-full shrink-0 flex-col rounded-lg border border-slate-200/80 bg-white p-1 shadow-[0_1px_3px_rgba(15,23,42,0.06)] sm:max-h-none sm:flex-1 sm:shrink sm:rounded-xl sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none lg:h-full lg:w-80 lg:flex-[0.9] xl:w-88">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.06)] sm:rounded-xl">
+            <div className="shrink-0 px-1 pt-1 sm:px-0 sm:pt-0">
+              <div className="flex flex-col gap-0.5 sm:flex-row sm:items-start sm:justify-between sm:gap-2">
+                <span className="text-[10px] font-semibold leading-tight text-[#334155] sm:text-sm">
                   Question No. Sheet:
                 </span>
-                <div className="flex shrink-0 flex-row flex-wrap items-center justify-end gap-2 sm:shrink-0">
-                  <span className="text-[11px] font-medium text-[#64748b] sm:text-xs">
+                <div className="flex shrink-0 flex-row flex-wrap items-center justify-end gap-1 sm:shrink-0 sm:gap-2">
+                  <span className="text-[9px] font-medium leading-tight text-[#64748b] sm:text-xs">
                     Remaining Time:
                   </span>
-                  <span className="inline-flex h-6.5 min-w-0 shrink-0 items-center gap-1 rounded-md bg-[#0f172a] px-2 py-0.5 text-[11px] font-bold tabular-nums text-white shadow-inner sm:h-8 sm:px-2.5 sm:text-[13px]">
-                    <Clock className="h-3 w-3 shrink-0 opacity-90 sm:h-3.5 sm:w-3.5" />
+                  <span className="inline-flex h-5 min-w-0 shrink-0 items-center gap-0.5 rounded bg-[#0f172a] px-1.5 py-0 text-[9px] font-bold tabular-nums text-white shadow-inner sm:h-8 sm:gap-1 sm:rounded-md sm:px-2.5 sm:py-0.5 sm:text-[13px]">
+                    <Clock className="h-2.5 w-2.5 shrink-0 opacity-90 sm:h-3.5 sm:w-3.5" />
                     {remainingTimeFormatted}
                   </span>
                 </div>
@@ -496,7 +496,7 @@ export default function ExamTestPage() {
             </div>
 
             <div
-              className="scrollbar-minimal grid min-h-0 flex-1 grid-cols-5 gap-1 overflow-y-auto overscroll-contain bg-[#f5f9fc] px-1.5 py-1.5 sm:grid-cols-10 sm:gap-3 sm:bg-transparent sm:px-5 sm:py-0 sm:pb-2.5 sm:pt-1.5"
+              className="scrollbar-minimal grid min-h-0 flex-1 grid-cols-8 gap-0.5 overflow-y-auto overscroll-contain bg-[#f5f9fc] px-1 pb-1 pt-0.5 sm:grid-cols-10 sm:gap-3 sm:bg-transparent sm:px-5 sm:py-0 sm:pb-2.5 sm:pt-1.5"
             >
               {questions.map((question, index) => (
                 <button
@@ -510,22 +510,22 @@ export default function ExamTestPage() {
               ))}
             </div>
 
-            <div className="shrink-0 border-t border-slate-100 p-3 pt-2.5 sm:p-5 sm:pt-4">
-            <div className="flex flex-wrap gap-x-3 gap-y-1.5 text-[10px] leading-tight text-slate-600 sm:gap-x-5 sm:gap-y-2.5 sm:text-xs">
-              <span className="flex items-center gap-1.5">
-                <span className="h-3 w-3 shrink-0 rounded border border-emerald-600 bg-emerald-500" />
+            <div className="shrink-0 border-t border-slate-100 px-1 py-1 sm:p-5 sm:pt-4">
+            <div className="flex flex-wrap gap-x-2 gap-y-0.5 text-[8px] leading-tight text-slate-600 sm:gap-x-5 sm:gap-y-2.5 sm:text-xs">
+              <span className="flex items-center gap-1 sm:gap-1.5">
+                <span className="h-2 w-2 shrink-0 rounded border border-emerald-600 bg-emerald-500 sm:h-3 sm:w-3" />
                 Attended
               </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-3 w-3 shrink-0 rounded border border-red-300 bg-red-500" />
+              <span className="flex items-center gap-1 sm:gap-1.5">
+                <span className="h-2 w-2 shrink-0 rounded border border-red-300 bg-red-500 sm:h-3 sm:w-3" />
                 Not Attended
               </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-3 w-3 shrink-0 rounded border border-purple-500 bg-purple-600" />
+              <span className="flex items-center gap-1 sm:gap-1.5">
+                <span className="h-2 w-2 shrink-0 rounded border border-purple-500 bg-purple-600 sm:h-3 sm:w-3" />
                 Marked
               </span>
-              <span className="flex items-center gap-1.5">
-                <span className="relative h-3 w-3 shrink-0 rounded border-2 border-purple-600 bg-emerald-500" />
+              <span className="flex items-center gap-1 sm:gap-1.5">
+                <span className="relative h-2 w-2 shrink-0 rounded border border-purple-600 bg-emerald-500 sm:h-3 sm:w-3 sm:border-2" />
                 Answered + Marked
               </span>
             </div>
