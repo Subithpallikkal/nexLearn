@@ -2,8 +2,7 @@
 
 NexLearn is a web application for learner onboarding, timed MCQ exams, and results. The implementation lives in the **`frontend/`** directory as a [Next.js](https://nextjs.org) 16 (App Router) application with Redux state, Tailwind CSS 4, and Ant Design for selected UI (e.g. loading states).
 
-**Live deployment (Vercel):** [https://nexlearn-qjmobc7oo-subiths-projects-29780f67.vercel.app/](https://nexlearn-qjmobc7oo-subiths-projects-29780f67.vercel.app/)
-
+**Live deployment (Vercel):** (https://nexlearn-beta.vercel.app/)
 ---
 
 ## Repository layout
